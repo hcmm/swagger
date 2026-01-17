@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>3.5.9</version>
+		<relativePath />
+	</parent>
+
+	<groupId>com.jetnuvem</groupId>
+	<artifactId>api-cotacao</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>api-cotacao</name>
+	<description>API Cotacao - API First via api-contracts</description>
+
+	<properties>
+		<java.version>17</java.version>
+		<openapi-generator.version>7.6.0</openapi-generator.version>
+
+		<!-- Para onde vamos descompactar o contrato -->
+		<contratos.dir>${project.build.directory}/contratos</contratos.dir>
+
+		<!-- Coordenadas do jar de contratos -->
+		<contracts.groupId>com.jetnuvem</contracts.groupId>
+		<contracts.artifactId>api-contracts</contracts.artifactId>
+		<contracts.version>0.0.1-SNAPSHOT</contracts.version>
+	</properties>
+
+	<dependencies>
+		<!-- Web -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+		<!-- Validação -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-validation</artifactId>
+		</dependency>
+
+		<!-- Contratos (seu JAR) -->
+		<dependency>
+			<groupId>${contracts.groupId}</groupId>
+			<artifactId>${contracts.artifactId}</artifactId>
+			<version>${contracts.version}</version>
+		</dependency>
+
+		<!-- Necessário para compilar a interface gerada
+		(io.swagger.v3.oas.annotations.*) -->
+		<dependency>
+			<groupId>io.swagger.core.v3</groupId>
+			<artifactId>swagger-annotations-jakarta</artifactId>
+			<version>2.2.41</version>
+		</dependency>
+
+		<!-- Testes -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+
+			<!-- 1) Unpack do bundle YAML do JAR api-contracts -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<version>3.6.1</version>
+				<executions>
+					<execution>
+						<id>unpack-contrato-cotacoes</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>unpack</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>${contracts.groupId}</groupId>
+									<artifactId>${contracts.artifactId}</artifactId>
+									<version>${contracts.version}</version>
+									<type>jar</type>
+									<overWrite>true</overWrite>
+									<outputDirectory>${contratos.dir}</outputDirectory>
+									<includes>
+										contracts-bundled/cotacoes/v1/cotacao-bundle.yaml</includes>
+								</artifactItem>
+							</artifactItems>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- 2) Gera apenas interface + models a partir do YAML
+			descompactado -->
+			<plugin>
+				<groupId>org.openapitools</groupId>
+				<artifactId>openapi-generator-maven-plugin</artifactId>
+				<version>${openapi-generator.version}</version>
+				<executions>
+					<execution>
+						<id>gerar-api-cotacoes</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<configuration>
+							<inputSpec>
+								${contratos.dir}/contracts-bundled/cotacoes/v1/cotacao-bundle.yaml</inputSpec>
+
+							<generatorName>spring</generatorName>
+							<output>${project.build.directory}/generated</output>
+
+							<apiPackage>com.jetnuvem.cotacao.api</apiPackage>
+							<modelPackage>com.jetnuvem.cotacao.model</modelPackage>
+							<invokerPackage>com.jetnuvem.cotacao.invoker</invokerPackage>
+
+							<configOptions>
+								<useSpringBoot3>true</useSpringBoot3>
+
+								<!-- Você pediu só interface -->
+								<interfaceOnly>true</interfaceOnly>
+
+								<!-- NÃO precisa delegate/controller -->
+								<delegatePattern>false</delegatePattern>
+
+								<useTags>true</useTags>
+
+								<!-- evita gerar JsonNullable e precisar de
+								jackson-databind-nullable -->
+								<openApiNullable>false</openApiNullable>
+
+								<skipDefaultInterface>true</skipDefaultInterface>
+
+								<useResponseEntity>true</useResponseEntity>
+
+							</configOptions>
+
+							<generateApiTests>false</generateApiTests>
+							<generateModelTests>false</generateModelTests>
+							<generateApiDocumentation>false</generateApiDocumentation>
+							<generateModelDocumentation>false</generateModelDocumentation>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- 3) Adiciona a pasta gerada como source do Maven -->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<version>3.5.0</version>
+				<executions>
+					<execution>
+						<id>add-generated-sources</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>add-source</goal>
+						</goals>
+						<configuration>
+							<sources>
+								<source>
+									${project.build.directory}/generated/src/main/java</source>
+							</sources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>copiar-e-renomear-openapi</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<target>
+								<mkdir
+									dir="${project.build.outputDirectory}/static/openapi" />
+								<copy
+									file="${contratos.dir}/contracts-bundled/cotacoes/v1/cotacao-bundle.yaml"
+									tofile="${project.build.outputDirectory}/static/openapi/swagger.yaml"
+									overwrite="true" />
+							</target>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+		</plugins>
+	</build>
+</project>

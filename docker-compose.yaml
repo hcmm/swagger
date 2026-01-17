@@ -1,0 +1,24 @@
+version: "3.9"
+
+services:
+  api-cotacao:
+    container_name: api-cotacao
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: api-cotacao:latest
+    ports:
+      - "8080:8080"
+    environment:
+      # Perfil Spring (opcional)
+      - SPRING_PROFILES_ACTIVE=default
+
+      # Boas práticas JVM em container
+      - JAVA_TOOL_OPTIONS=-XX:MaxRAMPercentage=75.0
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/openapi/swagger.yaml >/dev/null 2>&1 || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 10s

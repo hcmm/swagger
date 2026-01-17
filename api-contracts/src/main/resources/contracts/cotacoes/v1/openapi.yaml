@@ -1,0 +1,57 @@
+openapi: 3.0.3
+
+info:
+  title: API de Cotações
+  version: 1.0.0
+  description: API responsável pelo gerenciamento de cotações de seguros auto
+
+servers:
+  - url: /
+
+tags:
+  - name: Cotacoes
+    description: Operações de cotação
+
+paths:
+  /cotacoes:
+    post:
+      tags:
+        - Cotacoes
+      operationId: criarCotacao
+      summary: Criar cotação
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "./schemas.yaml#/components/schemas/CriarCotacaoRequest"
+      responses:
+        "201":
+          description: Cotação criada
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas.yaml#/components/schemas/Cotacao"
+
+  /cotacoes/{cotacaoId}:
+    get:
+      tags:
+        - Cotacoes
+      operationId: consultarCotacao
+      summary: Consultar cotação por ID
+      parameters:
+        - name: cotacaoId
+          in: path
+          required: true
+          description: Identificador único da cotação
+          schema:
+            $ref: "./schemas.yaml#/components/schemas/UUID"
+      responses:
+        "200":
+          description: Cotação encontrada
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas.yaml#/components/schemas/Cotacao"
+        "404":
+          description: Cotação não encontrada

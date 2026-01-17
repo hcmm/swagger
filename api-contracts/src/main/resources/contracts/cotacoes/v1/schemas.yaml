@@ -1,0 +1,38 @@
+components:
+  schemas:
+    UUID:
+      $ref: "../../_compartilhado/v1/schemas.yaml#/components/schemas/UUID"
+
+    Dinheiro:
+      $ref: "../../_compartilhado/v1/schemas.yaml#/components/schemas/Dinheiro"
+
+    CriarCotacaoRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - clienteId
+        - premioSugerido
+      properties:
+        clienteId:
+          $ref: "#/components/schemas/UUID"
+        premioSugerido:
+          $ref: "#/components/schemas/Dinheiro"
+
+    Cotacao:
+      allOf:
+        - $ref: "#/components/schemas/CriarCotacaoRequest"
+        - type: object
+          additionalProperties: false
+          required:
+            - cotacaoId
+            - status
+          properties:
+            cotacaoId:
+              $ref: "#/components/schemas/UUID"
+            status:
+              type: string
+              description: Status atual da cotação
+              enum:
+                - CRIADA
+                - EXPIRADA
+                - ACEITA

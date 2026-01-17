@@ -1,0 +1,19 @@
+components:
+  schemas:
+    UUID:
+      type: string
+      format: uuid
+      example: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+
+    Dinheiro:
+      type: object
+      additionalProperties: false
+      required: [valor, moeda]
+      properties:
+        valor:
+          type: number
+          format: double
+          example: 199.90
+        moeda:
+          type: string
+          example: "BRL"
