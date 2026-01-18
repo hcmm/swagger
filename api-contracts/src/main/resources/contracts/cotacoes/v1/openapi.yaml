@@ -3,7 +3,7 @@ openapi: 3.0.3
 info:
   title: API de Cotações
   version: 1.0.0
-  description: API responsável pelo gerenciamento de cotações de seguros auto
+  description: API responsável pelo gerenciamento de cotações de seguros do automovel
 
 servers:
   - url: /

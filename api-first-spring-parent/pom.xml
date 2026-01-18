@@ -91,7 +91,7 @@
 				<executions>
 					<execution>
 						<id>unpack-contratos</id>
-						<phase>generate-sources</phase>
+						<phase>initialize</phase>
 						<goals>
 							<goal>unpack</goal>
 						</goals>
@@ -192,7 +192,7 @@
 									dir="${project.build.outputDirectory}/static/openapi" />
 								<copy
 									file="${contratos.dir}/${api.contract.path}"
-									tofile="${project.build.outputDirectory}/static/openapi/swagger.yaml"
+									tofile="${project.build.outputDirectory}/static/swagger-ui/swagger.yaml"
 									overwrite="true" />
 							</target>
 						</configuration>

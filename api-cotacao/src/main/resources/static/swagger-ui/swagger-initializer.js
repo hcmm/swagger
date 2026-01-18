@@ -2,7 +2,7 @@ window.onload = function() {
   //<editor-fold desc="Changeable Configuration Block">
 
   window.ui = SwaggerUIBundle({
-    url: "/openapi/swagger.yaml",
+    url: "/swagger-ui/swagger.yaml",
     dom_id: '#swagger-ui',
     deepLinking: true,
     presets: [

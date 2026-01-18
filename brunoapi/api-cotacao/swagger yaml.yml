@@ -5,7 +5,7 @@ info:
 
 http:
   method: GET
-  url: http://localhost:8080/openapi/swagger.yaml
+  url: http://localhost:8080/swagger-ui/swagger.yaml
   auth: inherit
 
 settings:
