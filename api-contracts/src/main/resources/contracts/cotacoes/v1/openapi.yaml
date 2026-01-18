@@ -55,3 +55,34 @@ paths:
                 $ref: "./schemas.yaml#/components/schemas/Cotacao"
         "404":
           description: Cotação não encontrada
+
+  /cotacoes/{cotacaoId}/processar:
+    post:
+      tags:
+        - Cotacoes
+      operationId: processarCotacao
+      summary: Processar cotação
+      parameters:
+        - name: cotacaoId
+          in: path
+          required: true
+          description: Identificador único da cotação
+          schema:
+            $ref: "./schemas.yaml#/components/schemas/UUID"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "./schemas.yaml#/components/schemas/ProcessarCotacaoRequest"
+      responses:
+        "200":
+          description: Cotação processada com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas.yaml#/components/schemas/Cotacao"
+        "400":
+          description: Requisição inválida
+        "404":
+          description: Cotação não encontrada

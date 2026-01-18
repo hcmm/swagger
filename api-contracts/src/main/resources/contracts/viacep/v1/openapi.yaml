@@ -1,0 +1,241 @@
+openapi: 3.0.3
+info:
+  title: ViaCEP (referência) - API de Consulta de CEP
+  version: "1.0.0"
+  description: |
+    Especificação OpenAPI baseada no comportamento público do ViaCEP.
+    - Consulta por CEP: /ws/{cep}/json/
+    - Pesquisa por endereço: /ws/{uf}/{cidade}/{logradouro}/json/
+    Observações:
+    - CEP inválido (formato errado) retorna 400.
+    - CEP válido, mas inexistente retorna 200 com {"erro": true}.
+servers:
+  - url: https://viacep.com.br
+
+tags:
+  - name: ViaCep
+    description: Consulta de endereço por CEP
+  - name: Endereco
+    description: Pesquisa de CEP por UF/Cidade/Logradouro
+
+paths:
+  /ws/{cep}/json/:
+    get:
+      tags: [ViaCep]
+      operationId: consultarCep
+      summary: Consultar endereço por CEP
+      description: |
+        Retorna dados de endereço para um CEP com 8 dígitos.
+        - Se o CEP for inválido (não tiver 8 dígitos), retorna 400.
+        - Se o CEP for válido e não existir, retorna {"erro": true}.
+      parameters:
+        - name: cep
+          in: path
+          required: true
+          description: CEP com exatamente 8 dígitos (sem hífen).
+          schema:
+            type: string
+            pattern: "^[0-9]{8}$"
+          example: "01001000"
+      responses:
+        "200":
+          description: Endereço encontrado ou CEP inexistente.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Endereco"
+              examples:
+                encontrado:
+                  summary: CEP encontrado
+                  value:
+                    cep: "01001-000"
+                    logradouro: "Praça da Sé"
+                    complemento: "lado ímpar"
+                    unidade: ""
+                    bairro: "Sé"
+                    localidade: "São Paulo"
+                    uf: "SP"
+                    estado: "São Paulo"
+                    regiao: "Sudeste"
+                    ibge: "3550308"
+                    gia: "1004"
+                    ddd: "11"
+                    siafi: "7107"
+                inexistente:
+                  summary: CEP válido, mas inexistente
+                  value:
+                    erro: true
+        "400":
+          description: "CEP em formato inválido (ex.: não tem 8 dígitos)."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErroRequisicao"
+              examples:
+                invalido:
+                  value:
+                    message: "CEP inválido. Informe 8 dígitos numéricos."
+
+  /ws/{uf}/{cidade}/{logradouro}/json/:
+    get:
+      tags: [Endereco]
+      operationId: pesquisarPorEndereco
+      summary: Pesquisar CEP por UF, cidade e logradouro
+      description: |
+        Pesquisa CEPs informando UF, cidade e logradouro.
+        Regras:
+        - UF é obrigatório.
+        - Cidade e Logradouro precisam ter pelo menos 3 caracteres (senão retorna 400).
+        - Retorna uma lista (máximo 50), podendo vir vazia.
+      parameters:
+        - name: uf
+          in: path
+          required: true
+          description: Unidade Federativa (sigla, 2 letras).
+          schema:
+            type: string
+            pattern: "^[A-Z]{2}$"
+          example: "RS"
+        - name: cidade
+          in: path
+          required: true
+          description: Nome da cidade (mínimo 3 caracteres). Use URL-encoding para espaços.
+          schema:
+            type: string
+            minLength: 3
+          example: "Porto Alegre"
+        - name: logradouro
+          in: path
+          required: true
+          description: Logradouro (mínimo 3 caracteres). Use URL-encoding para espaços.
+          schema:
+            type: string
+            minLength: 3
+          example: "Domingos"
+      responses:
+        "200":
+          description: Lista de endereços encontrados (pode ser vazia).
+          content:
+            application/json:
+              schema:
+                type: array
+                maxItems: 50
+                items:
+                  $ref: "#/components/schemas/Endereco"
+              examples:
+                exemplo:
+                  summary: Lista com resultados
+                  value:
+                    - cep: "90620-000"
+                      logradouro: "Avenida Domingos de Almeida"
+                      complemento: ""
+                      unidade: ""
+                      bairro: "Partenon"
+                      localidade: "Porto Alegre"
+                      uf: "RS"
+                      estado: "Rio Grande do Sul"
+                      regiao: "Sul"
+                      ibge: "4314902"
+                      gia: ""
+                      ddd: "51"
+                      siafi: "8801"
+        "400":
+          description: "Parâmetros inválidos (ex.: cidade/logradouro com menos de 3 caracteres)."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErroRequisicao"
+              examples:
+                invalido:
+                  value:
+                    message: "Cidade e logradouro devem ter no mínimo 3 caracteres."
+
+components:
+  schemas:
+    # ✅ Nomeia o oneOf que antes estava inline, evitando InlineResponse200
+    ConsultarCepResponse:
+      description: |
+        Resposta da consulta de CEP.
+        - Quando encontrado: retorna os campos de Endereco
+        - Quando inexistente: retorna {"erro": true}
+      oneOf:
+        - $ref: "#/components/schemas/Endereco"
+        - $ref: "#/components/schemas/ErroCepInexistente"
+
+    Endereco:
+      type: object
+      additionalProperties: false
+      properties:
+        cep:
+          type: string
+          description: CEP formatado (com hífen).
+          example: "01001-000"
+        logradouro:
+          type: string
+          example: "Praça da Sé"
+        complemento:
+          type: string
+          example: "lado ímpar"
+        unidade:
+          type: string
+          description: Campo pode vir vazio.
+          example: ""
+        bairro:
+          type: string
+          example: "Sé"
+        localidade:
+          type: string
+          description: Cidade
+          example: "São Paulo"
+        uf:
+          type: string
+          description: Sigla da UF
+          example: "SP"
+        estado:
+          type: string
+          description: Nome do estado
+          example: "São Paulo"
+        regiao:
+          type: string
+          description: Região do Brasil
+          example: "Sudeste"
+        ibge:
+          type: string
+          description: Código IBGE do município
+          example: "3550308"
+        gia:
+          type: string
+          description: Código GIA (pode vir vazio fora de SP)
+          example: "1004"
+        ddd:
+          type: string
+          description: DDD
+          example: "11"
+        siafi:
+          type: string
+          description: Código SIAFI
+          example: "7107"
+        erro:
+          type: boolean
+          description: "True se o CEP não foi encontrado (válido mas inexistente na base)."
+          example: true
+      required: []
+      # Nota: Nenhum campo é obrigatório pois pode vir apenas {"erro": true}
+
+    ErroCepInexistente:
+      type: object
+      additionalProperties: false
+      properties:
+        erro:
+          type: boolean
+          description: Indica CEP válido, porém inexistente.
+          enum: [true]
+      required: [erro]
+
+    ErroRequisicao:
+      type: object
+      additionalProperties: false
+      properties:
+        message:
+          type: string
+      required: [message]

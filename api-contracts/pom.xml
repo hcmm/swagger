@@ -48,6 +48,24 @@
 							</configOptions>
 						</configuration>
 					</execution>
+					<execution>
+						<id>bundle-viacep</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<configuration>
+							<inputSpec>
+								${project.basedir}/src/main/resources/contracts/viacep/v1/openapi.yaml</inputSpec>
+							<language>openapi-yaml</language>
+							<output>
+								${project.build.directory}/contracts-bundled/viacep/v1</output>
+							<configOptions>
+								<outputFile>viacep-bundle.yaml</outputFile>
+							</configOptions>
+						</configuration>
+					</execution>
+
 				</executions>
 			</plugin>
 			<plugin>

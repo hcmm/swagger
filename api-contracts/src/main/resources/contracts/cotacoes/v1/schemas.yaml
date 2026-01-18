@@ -36,3 +36,17 @@ components:
                 - CRIADA
                 - EXPIRADA
                 - ACEITA
+            premioFinal:
+              $ref: "#/components/schemas/Dinheiro"
+              description: Prêmio final acordado após processamento
+
+    ProcessarCotacaoRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - cep
+      properties:
+        cep:
+          type: string
+          description: CEP para processamento da cotação
+          example: "12345-678"

@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.jetnuvem.cotacao.api.CotacoesApi;
 import com.jetnuvem.cotacao.model.Cotacao;
 import com.jetnuvem.cotacao.model.CriarCotacaoRequest;
+import com.jetnuvem.cotacao.model.ProcessarCotacaoRequest;
 import com.jetnuvem.cotacao.service.CotacaoService;
 
 @RestController
@@ -28,6 +29,12 @@ public class CotacoesApiController implements CotacoesApi {
     @Override
     public ResponseEntity<Cotacao> consultarCotacao(UUID cotacaoId) {
         return ResponseEntity.ok(service.consultar(cotacaoId));
+    }
+
+    @Override
+    public ResponseEntity<Cotacao> processarCotacao(UUID cotacaoId, ProcessarCotacaoRequest request) {
+        Cotacao cotacao = service.processar(cotacaoId, request);
+        return ResponseEntity.ok(cotacao);
     }
 }
 
