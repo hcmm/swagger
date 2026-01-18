@@ -1,0 +1,196 @@
+openapi: 3.0.3
+info:
+  title: API de Cotações
+  description: API responsável pelo gerenciamento de cotações de seguros do automovel
+  version: 1.0.0
+servers:
+- url: /
+tags:
+- name: Cotacoes
+  description: Operações de cotação
+paths:
+  /cotacoes:
+    post:
+      tags:
+      - Cotacoes
+      summary: Criar cotação
+      operationId: criarCotacao
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CriarCotacaoRequest'
+        required: true
+      responses:
+        "201":
+          description: Cotação criada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cotacao'
+  /cotacoes/{cotacaoId}:
+    get:
+      tags:
+      - Cotacoes
+      summary: Consultar cotação por ID
+      operationId: consultarCotacao
+      parameters:
+      - name: cotacaoId
+        in: path
+        description: Identificador único da cotação
+        required: true
+        style: simple
+        explode: false
+        schema:
+          $ref: '#/components/schemas/UUID'
+      responses:
+        "200":
+          description: Cotação encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cotacao'
+        "404":
+          description: Cotação não encontrada
+  /cotacoes/processar:
+    post:
+      tags:
+      - Cotacoes
+      summary: Processar Endereco
+      operationId: processarEndereco
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProcessarEnderecoRequest'
+        required: true
+      responses:
+        "200":
+          description: Endereco processada com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Endereco'
+        "400":
+          description: Requisição inválida
+        "404":
+          description: Endereco não encontrada
+components:
+  schemas:
+    CriarCotacaoRequest:
+      required:
+      - clienteId
+      - premioSugerido
+      type: object
+      properties:
+        clienteId:
+          $ref: '#/components/schemas/UUID'
+        premioSugerido:
+          $ref: '#/components/schemas/Dinheiro'
+      additionalProperties: false
+    UUID:
+      type: string
+      format: uuid
+      example: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+    Dinheiro:
+      required:
+      - moeda
+      - valor
+      type: object
+      properties:
+        valor:
+          type: number
+          format: double
+          example: 199.9
+        moeda:
+          type: string
+          example: BRL
+      additionalProperties: false
+    Cotacao:
+      allOf:
+      - $ref: '#/components/schemas/CriarCotacaoRequest'
+      - required:
+        - cotacaoId
+        - status
+        type: object
+        properties:
+          cotacaoId:
+            $ref: '#/components/schemas/UUID'
+          status:
+            type: string
+            description: Status atual da cotação
+            enum:
+            - CRIADA
+            - EXPIRADA
+            - ACEITA
+          premioFinal:
+            $ref: '#/components/schemas/Dinheiro'
+        additionalProperties: false
+    ProcessarEnderecoRequest:
+      required:
+      - cep
+      type: object
+      properties:
+        cep:
+          type: string
+          description: CEP para processamento da cotação
+          example: 12345-678
+      additionalProperties: false
+    Endereco:
+      type: object
+      properties:
+        cep:
+          type: string
+          description: CEP formatado (com hífen).
+          example: 01001-000
+        logradouro:
+          type: string
+          example: Praça da Sé
+        complemento:
+          type: string
+          example: lado ímpar
+        unidade:
+          type: string
+          description: Campo pode vir vazio.
+          example: ""
+        bairro:
+          type: string
+          example: Sé
+        localidade:
+          type: string
+          description: Cidade
+          example: São Paulo
+        uf:
+          type: string
+          description: Sigla da UF
+          example: SP
+        estado:
+          type: string
+          description: Nome do estado
+          example: São Paulo
+        regiao:
+          type: string
+          description: Região do Brasil
+          example: Sudeste
+        ibge:
+          type: string
+          description: Código IBGE do município
+          example: "3550308"
+        gia:
+          type: string
+          description: Código GIA (pode vir vazio fora de SP)
+          example: "1004"
+        ddd:
+          type: string
+          description: DDD
+          example: "11"
+        siafi:
+          type: string
+          description: Código SIAFI
+          example: "7107"
+        erro:
+          type: boolean
+          description: True se o CEP não foi encontrado (válido mas inexistente na
+            base).
+          example: true
+      additionalProperties: false

@@ -188,8 +188,6 @@
 						<configuration>
 							<skip>${api.codegen.skip}</skip>
 							<target>
-								<mkdir
-									dir="${project.build.outputDirectory}/static/openapi" />
 								<copy
 									file="${contratos.dir}/${api.contract.path}"
 									tofile="${project.build.outputDirectory}/static/swagger-ui/swagger.yaml"
