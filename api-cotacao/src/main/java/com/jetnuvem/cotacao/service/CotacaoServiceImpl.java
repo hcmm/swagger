@@ -2,16 +2,16 @@ package com.jetnuvem.cotacao.service;
 
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import com.jetnuvem.cotacao.model.Cotacao;
 import com.jetnuvem.cotacao.model.CriarCotacaoRequest;
-import com.jetnuvem.cotacao.model.ProcessarCotacaoRequest;
+import com.jetnuvem.cotacao.model.Endereco;
+import com.jetnuvem.cotacao.model.ProcessarEnderecoRequest;
 import com.jetnuvem.cotacao.repository.CotacaoRepository;
 import com.jetnuvem.viacep.client.api.ViaCepApiClient;
-import com.jetnuvem.viacep.client.model.Endereco;
 
 import feign.FeignException;
 
@@ -46,41 +46,63 @@ public class CotacaoServiceImpl implements CotacaoService {
 	}
 
 	@Override
-	public Cotacao processar(UUID cotacaoId, ProcessarCotacaoRequest request) {
-		Cotacao cotacao = consultar(cotacaoId);
-		processarCotacao(request.getCep());
-		return cotacao;
+	public Endereco processar(ProcessarEnderecoRequest request) {
+		com.jetnuvem.viacep.client.model.Endereco enderecoViaCep = processarCotacao(request.getCep());
+		return converterParaEnderecoCotacao(enderecoViaCep);
 	}
 
-	public void processarCotacao(String cep) {
-		if (viaCepClient == null) {
-			System.out.println("ViaCepApiClient não está disponível");
-			return;
-		}
+	private com.jetnuvem.viacep.client.model.Endereco processarCotacao(String cep) {
 
 		try {
-			ResponseEntity<Endereco> response = viaCepClient.consultarCep(cep);
-			Endereco endereco = response.getBody();
-
-			if (endereco == null) {
-				throw new IllegalStateException("Resposta vazia do ViaCEP");
+			if (viaCepClient == null) {
+				System.out.println("ViaCepApiClient não está disponível");
+				throw new RuntimeException("ViaCepApiClient não está disponível");
 			}
-
+			ResponseEntity<com.jetnuvem.viacep.client.model.Endereco> response = viaCepClient.consultarCep(cep);
+			com.jetnuvem.viacep.client.model.Endereco endereco = response.getBody();
 			// Verifica se o CEP é inexistente
 			if (Boolean.TRUE.equals(endereco.getErro())) {
 				System.out.println("CEP válido, mas inexistente na base.");
-				return;
+				throw new RuntimeException("CEP válido, mas inexistente na base.");
 			}
 
 			// CEP encontrado com sucesso
 			System.out.println("CEP encontrado. Logradouro: " + endereco.getLogradouro());
 			// segue seu fluxo de cotação...
-
+			
+			return endereco;
 		} catch (FeignException e) {
 			System.out.println("Erro ao chamar ViaCEP: HTTP " + e.status());
 		} catch (Exception e) {
 			System.out.println("Erro ao processar resposta do ViaCEP: " + e.getMessage());
 			e.printStackTrace();
 		}
+		return null;
 	}
+
+	private Endereco converterParaEnderecoCotacao(com.jetnuvem.viacep.client.model.Endereco enderecoViaCep) {
+		if (enderecoViaCep == null) {
+			return null;
+		}
+
+		Endereco endereco = new Endereco();
+		endereco.setCep(enderecoViaCep.getCep());
+		endereco.setLogradouro(enderecoViaCep.getLogradouro());
+		endereco.setComplemento(enderecoViaCep.getComplemento());
+		endereco.setUnidade(enderecoViaCep.getUnidade());
+		endereco.setBairro(enderecoViaCep.getBairro());
+		endereco.setLocalidade(enderecoViaCep.getLocalidade());
+		endereco.setUf(enderecoViaCep.getUf());
+		endereco.setEstado(enderecoViaCep.getEstado());
+		endereco.setRegiao(enderecoViaCep.getRegiao());
+		endereco.setIbge(enderecoViaCep.getIbge());
+		endereco.setGia(enderecoViaCep.getGia());
+		endereco.setDdd(enderecoViaCep.getDdd());
+		endereco.setSiafi(enderecoViaCep.getSiafi());
+		endereco.setErro(enderecoViaCep.getErro());
+
+		return endereco;
+
+	}
+	
 }

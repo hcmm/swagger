@@ -6,6 +6,9 @@ components:
     Dinheiro:
       $ref: "../../_compartilhado/v1/schemas.yaml#/components/schemas/Dinheiro"
 
+    Endereco:
+      $ref: "../../viacep/v1/schemas.yaml#/components/schemas/Endereco"
+
     CriarCotacaoRequest:
       type: object
       additionalProperties: false
@@ -40,7 +43,7 @@ components:
               $ref: "#/components/schemas/Dinheiro"
               description: Prêmio final acordado após processamento
 
-    ProcessarCotacaoRequest:
+    ProcessarEnderecoRequest:
       type: object
       additionalProperties: false
       required:

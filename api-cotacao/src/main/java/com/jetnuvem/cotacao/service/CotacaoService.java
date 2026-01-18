@@ -4,10 +4,11 @@ import java.util.UUID;
 
 import com.jetnuvem.cotacao.model.Cotacao;
 import com.jetnuvem.cotacao.model.CriarCotacaoRequest;
-import com.jetnuvem.cotacao.model.ProcessarCotacaoRequest;
+import com.jetnuvem.cotacao.model.Endereco;
+import com.jetnuvem.cotacao.model.ProcessarEnderecoRequest;
 
 public interface CotacaoService {
   Cotacao criar(CriarCotacaoRequest request);
   Cotacao consultar(UUID cotacaoId);
-  Cotacao processar(UUID cotacaoId, ProcessarCotacaoRequest request);
+  Endereco processar(ProcessarEnderecoRequest request);
 }

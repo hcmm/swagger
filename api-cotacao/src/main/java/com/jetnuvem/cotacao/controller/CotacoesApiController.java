@@ -8,8 +8,11 @@ import org.springframework.web.bind.annotation.RestController;
 import com.jetnuvem.cotacao.api.CotacoesApi;
 import com.jetnuvem.cotacao.model.Cotacao;
 import com.jetnuvem.cotacao.model.CriarCotacaoRequest;
-import com.jetnuvem.cotacao.model.ProcessarCotacaoRequest;
+import com.jetnuvem.cotacao.model.Endereco;
+import com.jetnuvem.cotacao.model.ProcessarEnderecoRequest;
 import com.jetnuvem.cotacao.service.CotacaoService;
+
+import jakarta.validation.Valid;
 
 @RestController
 public class CotacoesApiController implements CotacoesApi {
@@ -31,10 +34,12 @@ public class CotacoesApiController implements CotacoesApi {
         return ResponseEntity.ok(service.consultar(cotacaoId));
     }
 
-    @Override
-    public ResponseEntity<Cotacao> processarCotacao(UUID cotacaoId, ProcessarCotacaoRequest request) {
-        Cotacao cotacao = service.processar(cotacaoId, request);
-        return ResponseEntity.ok(cotacao);
-    }
+	@Override
+	public ResponseEntity<Endereco> processarEndereco(@Valid ProcessarEnderecoRequest processarEnderecoRequest) {
+		
+		return ResponseEntity.ok(service.processar(processarEnderecoRequest));
+	}
+
+
 }
 

@@ -1,0 +1,24 @@
+info:
+  name: processarCep
+  type: http
+  seq: 5
+
+http:
+  method: post
+  url: http://localhost:8080/cotacoes/processar
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "cep": "01001000"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: false
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

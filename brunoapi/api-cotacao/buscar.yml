@@ -1,0 +1,18 @@
+info:
+  name: buscar
+  type: http
+  seq: 2
+
+http:
+  method: get
+  url: http://localhost:8080/cotacoes/63c9e1ec-a49d-46a6-9f02-63cb971bd4ff
+  headers:
+    - name: Accept
+      value: application/json
+  auth: inherit
+
+settings:
+  encodeUrl: false
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

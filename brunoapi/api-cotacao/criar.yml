@@ -1,0 +1,30 @@
+info:
+  name: criar
+  type: http
+  seq: 1
+
+http:
+  method: post
+  url: http://localhost:8080/cotacoes
+  headers:
+    - name: Content-Type
+      value: application/json
+    - name: Accept
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "clienteId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+        "premioSugerido": {
+          "valor": 199.9,
+          "moeda": "BRL"
+        }
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: false
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

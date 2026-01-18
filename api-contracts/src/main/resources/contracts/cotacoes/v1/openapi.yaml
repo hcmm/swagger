@@ -56,33 +56,26 @@ paths:
         "404":
           description: Cotação não encontrada
 
-  /cotacoes/{cotacaoId}/processar:
+  /cotacoes/processar:
     post:
       tags:
         - Cotacoes
-      operationId: processarCotacao
-      summary: Processar cotação
-      parameters:
-        - name: cotacaoId
-          in: path
-          required: true
-          description: Identificador único da cotação
-          schema:
-            $ref: "./schemas.yaml#/components/schemas/UUID"
+      operationId: processarEndereco
+      summary: Processar Endereco      
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "./schemas.yaml#/components/schemas/ProcessarCotacaoRequest"
+              $ref: "./schemas.yaml#/components/schemas/ProcessarEnderecoRequest"
       responses:
         "200":
-          description: Cotação processada com sucesso
+          description: Endereco processada com sucesso
           content:
             application/json:
               schema:
-                $ref: "./schemas.yaml#/components/schemas/Cotacao"
+                $ref: "./schemas.yaml#/components/schemas/Endereco"
         "400":
           description: Requisição inválida
         "404":
-          description: Cotação não encontrada
+          description: Endereco não encontrada
